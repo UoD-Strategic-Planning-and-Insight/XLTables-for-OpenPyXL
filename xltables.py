@@ -1,3 +1,4 @@
+import os
 from typing import Generator, Callable, Dict, Any, Tuple, List, Type, overload
 
 import openpyxl
@@ -224,15 +225,21 @@ class XLTable:
         :param table_name: The name of the table.
         :return: A new XLTable object representing a table in the Excel file at the given path, in the sheet of the
                  given name, with the given table name.
+        :raises InvalidFileException: If the specified file is not a workbook file readable by OpenPyXL.
+        :raises ValueError: If the sheet name or table name do not lead to a valid table.
         """
 
         wb: Workbook = openpyxl.load_workbook(file_path, data_only = True)
         ws: Worksheet = wb[sheet_name]
 
         if(ws is not Worksheet):
-            raise ValueError(f"No sheet in the given workbook with the name \"{sheet_name}\".")
+            raise ValueError(f"No sheet in the specified workbook with the name \"{sheet_name}\".")
 
-        opxl_table: Table = ws.tables[table_name]
+        opxl_table: Table | None = ws.tables.get(table_name)
+
+        if(opxl_table is None):
+            raise ValueError(f"No table in the specified sheet with the name \"{table_name}\".")
+
         return XLTable(file_path, wb, ws, opxl_table)
 
     def get_row(self, row_number: int) -> dict[str, Cell]:
@@ -497,14 +504,17 @@ class XLTable:
             self.max_column_number_in_sheet -= 1
             self.source_table.ref = None # TO DO: Write.
 
-    def save(self):
+    def save(self, filepath: str | None = None):
         """
         Saves the table, committing any changes made to the file.
 
         Note that this saves the entire .xlsx file the table is in - if any changes have been made elsewhere, this will
         save them as well.
+        :param filepath: The filepath to save at. By default, (that is, if None) this method saves to the same filepath
+                         the table was loaded from.
         """
-        self.source_workbook.save(self.file_path)
+
+        self.source_workbook.save((filepath) if (filepath is not None) else (self.file_path))
 
     @staticmethod
     def __convert_int_to_alphabetic_number(to_convert: int) -> str:
