@@ -1,5 +1,6 @@
 from typing import Generator, Callable, Dict, Any, Tuple, List, Type, overload
 
+import openpyxl
 from openpyxl.cell import Cell
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.table import Table
@@ -213,6 +214,26 @@ class XLTable:
                 self.max_column_number_in_sheet = self.__convert_alphabetic_number_to_int(self.max_column_letters)
                 self.max_row_number_in_sheet = int(bottom_right[i:])
                 break
+
+    @staticmethod
+    def load_from_file(file_path: str, sheet_name: str, table_name: str):
+        """
+        Creates a new XLTable representing a table in an Excel file, given a file path, sheet name, and table name.
+        :param file_path: The file path of the Excel file to load the table from.
+        :param sheet_name: The name of the sheet that contains the table.
+        :param table_name: The name of the table.
+        :return: A new XLTable object representing a table in the Excel file at the given path, in the sheet of the
+                 given name, with the given table name.
+        """
+
+        wb: Workbook = openpyxl.load_workbook(file_path, data_only = True)
+        ws: Worksheet = wb[sheet_name]
+
+        if(ws is not Worksheet):
+            raise ValueError(f"No sheet in the given workbook with the name \"{sheet_name}\".")
+
+        opxl_table: Table = ws.tables[table_name]
+        return XLTable(file_path, wb, ws, opxl_table)
 
     def get_row(self, row_number: int) -> dict[str, Cell]:
         """
