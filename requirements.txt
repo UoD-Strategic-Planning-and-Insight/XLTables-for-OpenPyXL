@@ -1,0 +1,2 @@
+openpyxl~=3.2.0b1
+setuptools~=75.2.0
