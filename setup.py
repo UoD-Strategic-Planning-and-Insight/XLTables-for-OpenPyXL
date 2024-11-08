@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="xltables-for-openpyxl-uod",
-    version="1.1",
+    version="1.1.1",
     author="Chris Massie (Dundee University)",
     author_email="cmassie001@dundee.ac.uk",
     description="More easily work with tables in OpenPyXL.",
