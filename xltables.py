@@ -231,7 +231,7 @@ class XLTable:
         wb: Workbook = openpyxl.load_workbook(file_path, data_only = True)
         ws: Worksheet = wb[sheet_name]
 
-        if(ws is not Worksheet):
+        if(not isinstance(ws, Worksheet)):
             raise ValueError(f"No sheet in the specified workbook with the name \"{sheet_name}\".")
 
         opxl_table: Table | None = ws.tables.get(table_name)
